@@ -94,7 +94,13 @@ app.route('/api/users/:id/exercises').post( async (req, res) => {
   try {
     const userId = req.params.id
     const responseDTO = await addExerciseInUserById(userId, {...req.body})
-    return res.json(responseDTO)
+    return res.json({
+      _id: responseDTO._id,
+      username: responseDTO.username,
+      date: responseDTO.date,
+      duration: responseDTO.duration,
+      description: responseDTO.description
+    })
   } catch (error) {
     console.log(error)
     res.json({error: error.message})
