@@ -70,7 +70,7 @@ const addExerciseInUserById = async (userId, exercise) => {
   result.exercises.push(exercise)
   const updateUser = await result.save()
 
-  return {username: updateUser.username, ...exercise }
+  return {username: updateUser.username, ...exercise, date: (new Date(exercise.date)).toDateString(), duration: +exercise.duration }
 }
 
 app.route('/api/users').post( async (req, res) => {
@@ -107,6 +107,7 @@ app.route('/api/users/:id/logs').get( async (req, res) => {
     const filter = req.query
     const userLogs = await getLogsFromUser(userId)
     let logs = [...userLogs.exercises]
+
     if(filter.from) {
       logs = logs.filter(log => log.date >= new Date(filter.from))
     }
@@ -116,11 +117,19 @@ app.route('/api/users/:id/logs').get( async (req, res) => {
     if(filter.limit) {
       logs.splice(filter.limit)
     }
+
+    const logsDTO = logs.map(log => {
+      return{
+      description: log.description,
+      duration: log.duration,
+      date: (new Date(log.date)).toDateString(),
+    }
+  })
     const userLogsDTO = {
       username: userLogs.username,
       count: logs.length,
       _id: userLogs._id,
-      log: logs
+      log: logsDTO
     }
 
     res.json(userLogsDTO)
